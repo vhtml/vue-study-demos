@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>加载对话框指令</title>
+	<style>
+		html,body{
+			margin: 0;
+			padding: 0;
+			height: 100%;
+		}
+		.vue-loading {
+		    position: absolute;
+		    top: 0px;
+		    left: 0px;
+		    z-index: 1000;
+		    margin: 0px;
+		    padding: 0px;
+		    width: 100%;
+		    height: 100%;
+		    border: none;
+		    background-color: rgba(230, 233, 236, 0.8);
+		    cursor: wait;
+		    opacity: 0;
+		    transition: opacity .4s;
+		}
+
+		.vue-loading-msg {
+		    box-sizing: content-box !important;
+		    position: absolute;
+		    z-index: 1001;
+		    margin: 0px;
+		    padding: 0 35px;
+		    height: 40px;
+		    top: 20%;
+		    left: 50%;
+		    text-align: center;
+		    font-size: 14px;
+		    line-height: 40px;
+		    cursor: wait;
+		    background-color: #f4f4f4;
+		    border-radius: 4px;
+		    box-shadow: 0 1px 8px rgba(0,0,0,.15);
+		    border: solid 1px #bbb;
+		    transform: translateX(-50%);
+		}
+		.box{
+			box-sizing: border-box;
+			padding: 50px 0;
+			height: 100%;
+			text-align: center;
+		}
+	</style>
+	<script src="../../vendor/vue.js"></script>
+</head>
+<body>
+	<div class="box" v-loading="isLoading" :loading-options="options">
+		<button @click="showLoading">显示</button>
+	</div>
+	<script>
+		new Vue({
+			el: 'body',
+			directives: {
+				loading: {
+					params: ['loadingOptions'],
+					handleShow (){
+						var position = window.getComputedStyle(this.el).position
+
+						if(position === 'static' || position === ''){
+							this.static = true
+							this.el.style.position = 'relative'
+						}
+
+						var box = document.createElement('div')
+						box.className = 'vue-loading'
+						box.style.backgroundColor = this.options.bg
+
+						var msg = document.createElement('div')
+						msg.className = 'vue-loading-msg'
+						msg.textContent = this.options.text
+
+						box.appendChild(msg)
+						this.el.appendChild(box)
+
+						window.requestAnimationFrame(() => {
+							box.style.opacity = 1
+						})
+
+						this.loadingBox = box;
+					},
+					handleHide (){	
+						this.loadingBox.addEventListener('transitionend', () => {
+							this.loadingBox.remove()
+							if(this.static){
+								this.el.style.removeProperty('position')
+							}
+						})
+						this.loadingBox.style.opacity = 0
+					},
+					bind (){
+						console.log(this)
+						this.static = false
+						this.loadingBox = null
+						this.first = true
+						this.options = {
+							text: 'Loading ...',
+							bg: 'rgba(230, 233, 236, .8)'
+						}
+
+						if(this.params.loadingOptions){
+							Object.assign(this.options, this.params.loadingOptions)
+						}
+					},
+					update (value){
+						if(value){
+							this.first = false
+							this.handleShow()
+						}else{
+							if(this.first){
+								this.first = false
+								return
+							}
+							this.handleHide()
+						}
+					}
+				}
+			},
+			data (){
+				return {
+					isLoading: false,
+					options: {
+						text: '加载中...'
+					}
+				}
+			},
+			methods: {
+				showLoading (){
+					this.isLoading = true
+					setTimeout(() => {
+						this.isLoading = false
+					}, 1500)
+				}
+			}
+		})
+	</script>
+</body>
+</html>

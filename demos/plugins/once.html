@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>加载对话框指令</title>
+	<style>
+		html,body{
+			margin: 0;
+			padding: 0;
+			height: 100%;
+		}
+		div{
+			margin: 30px auto;
+			width: 100px;
+			height: 100px;
+			background-color: #ddd
+		}
+	</style>
+	<script src="../../vendor/vue.js"></script>
+</head>
+<body>
+	<div v-once:click="onClick"></div>
+	
+	<script>
+		var Once = {
+			//插件需包含一个install方法
+			install: function(Vue, options){
+				var _ = Vue.util;
+
+				Vue.directive('once', {
+
+				  bind: function() {
+				    this.context = this.vm;
+				  },
+
+				  update: function(handler) {
+				    if (typeof handler !== 'function') {
+				        _.warn('Directive "v-once:' + this.arg + '" expects a method.');
+				        return;
+				    }
+				    var self = this;
+
+				    this.handler = function(e) {
+				      self.reset();
+				      e.targetVM = self.vm;
+
+				      var res = handler.call(null, e);
+
+				      return res;
+				    };
+
+				    this.el.addEventListener(this.arg, this.handler);
+				  },
+
+				  reset: function() {
+				    this.el.removeEventListener(this.arg, this.handler);
+				  },
+
+				  unbind: function() {
+				    this.reset();
+				  }
+				});
+			}
+		}
+		Vue.use(Once)
+		new Vue({
+			el: 'body',
+			data (){
+				return {
+				}
+			},
+			methods: {
+				onClick (e){
+					console.log(this)
+				}
+			}
+		})
+	</script>
+</body>
+</html>
