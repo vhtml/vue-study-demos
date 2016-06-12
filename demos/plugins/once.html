@@ -26,11 +26,11 @@
 			//插件需包含一个install方法
 			install: function(Vue, options){
 				var _ = Vue.util;
-
+console.log(_)
 				Vue.directive('once', {
 
 				  bind: function() {
-				    this.context = this.vm;
+				    
 				  },
 
 				  update: function(handler) {
@@ -42,11 +42,7 @@
 
 				    this.handler = function(e) {
 				      self.reset();
-				      e.targetVM = self.vm;
-
-				      var res = handler.call(null, e);
-
-				      return res;
+				      handler.call(self.vm, e);
 				    };
 
 				    this.el.addEventListener(this.arg, this.handler);

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>加载对话框指令</title>
+	<style>
+		html,body{
+			margin: 0;
+			padding: 0;
+			height: 100%;
+		}
+		div{
+			margin: 30px auto;
+			width: 100px;
+			height: 100px;
+			background-color: #ddd
+		}
+	</style>
+	<script src="../../vendor/vue.js"></script>
+</head>
+<body>
+	<div v-pop-hover></div>
+	
+	<script>
+		var Once = {
+			//插件需包含一个install方法
+			install: function(Vue){
+
+				var template = '<span>xxxx</span>'
+
+				Vue.directive('pop-hover', {
+
+				  bind: function() {
+				  	var self = this
+				  	var tmpDiv = document.createElement('div')
+				  	tmpDiv.innerHTML = template
+				  	this.dom = tmpDiv.firstElementChild
+				    this.handlerOver = function(){
+				    	document.body.appendChild(self.dom)
+				    }
+				    this.handlerOut = function(){
+				    	document.body.removeChild(self.dom)
+				    }
+				    this.el.addEventListener('mouseover', this.handlerOver)
+				    this.el.addEventListener('mouseout', this.handlerOut)
+				  },
+
+				  update: function() {
+
+				  },
+
+				  unbind: function() {
+				    this.el.removeEventListener('mouseover', this.handlerOver);
+				    this.el.removeEventListener('mouseout', this.handlerOut);
+				  }
+				});
+			}
+		}
+		Vue.use(Once)
+		new Vue({
+			el: 'body',
+			data (){
+				return {
+				}
+			},
+			methods: {
+				onClick (e){
+					console.log(this)
+				}
+			}
+		})
+	</script>
+</body>
+</html>
